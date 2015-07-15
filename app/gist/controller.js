@@ -4,7 +4,7 @@ import config from '../config/environment';
 export default Em.Controller.extend({
   emberCli: Em.inject.service('ember-cli'),
   version: config.version,
-  revision: config.currentRevision.substring(0,7),
+  revision: (config.currentRevision || '').substring(0,7),
 
   /**
    * Output from the build, sets the `code` attr on the component
