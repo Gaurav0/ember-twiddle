@@ -113,6 +113,7 @@ function contentForAppBoot (content, config) {
   // doesn't recognize them properly...
   var monkeyPatchModules = [
     'ember',
+    'ember-data',
     'ember/resolver',
     'ember/load-initializers'
   ];
