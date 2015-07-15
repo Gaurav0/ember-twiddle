@@ -6,9 +6,9 @@ module.exports = function() {
   var isProductionLikeBuild = ['production', 'staging'].indexOf(env) > -1;
   var prepend = null;
 
-  if(isProductionLikeBuild) {
-    prepend = env==='production' ? '//assets.ember-twiddle.com/' : '//staging-assets.ember-twiddle.com/';
-  }
+  //if(isProductionLikeBuild) {
+  //  prepend = env==='production' ? '//assets.ember-twiddle.com/' : '//staging-assets.ember-twiddle.com/';
+  //}
 
   // This copies code out of ember-cli's blueprints into
   // app/lib/blueprints so we don't have to maintain our

@@ -7,7 +7,7 @@ module.exports = function(environment) {
     environment: environment,
     baseURL: '/',
     locationType: 'auto',
-    githubOauthUrl: 'http://localhost:9999/authenticate/',
+    githubOauthUrl: 'https://gatekeeper-gaurav.herokuapp.com/authenticate/',
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
@@ -26,7 +26,7 @@ module.exports = function(environment) {
       providers: {
         'github-oauth2': {
           scope: 'gist',
-          apiKey: '2999fbfe342248c88a91'
+          apiKey: 'fa044e5e2807ff8cca4e'
         }
       }
     }
@@ -54,13 +54,13 @@ module.exports = function(environment) {
   }
 
   if (environment === 'production') {
-    ENV.githubOauthUrl = 'https://ember-twiddle.herokuapp.com/authenticate/';
+    ENV.githubOauthUrl = 'https://gatekeeper-gaurav.herokuapp.com/authenticate/';
     ENV.torii = {
       sessionServiceName: 'session',
       providers: {
         'github-oauth2': {
           scope: 'gist',
-          apiKey: 'ce757a68eba4c4400b96'
+          apiKey: 'fa044e5e2807ff8cca4e'
         }
       }
     };
