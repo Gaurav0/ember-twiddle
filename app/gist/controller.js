@@ -3,7 +3,7 @@ import config from '../config/environment';
 
 export default Em.Controller.extend({
   emberCli: Em.inject.service('ember-cli'),
-  version: config.version,
+  version: config.APP.version,
   revision: (config.currentRevision || '').substring(0,7),
   init() {
     this._super(...arguments);
@@ -16,11 +16,12 @@ export default Em.Controller.extend({
    */
   buildOutput: Ember.Object.create({ code: '', styles: ''}),
   isBuilding: false,
-  activeEditor: null,
+  activeFile: null,
+  activeEditorCol: null,
   col1File: null,
   col2File: null,
-  col1Active: Em.computed.equal('activeEditor.col','1'),
-  col2Active: Em.computed.equal('activeEditor.col','2'),
+  col1Active: Em.computed.equal('activeEditorCol','1'),
+  col2Active: Em.computed.equal('activeEditorCol','2'),
 
   /**
    * Errors during build
@@ -76,8 +77,12 @@ export default Em.Controller.extend({
   }),
 
   actions: {
-    focusEditor (editor) {
-      this.set('activeEditor', editor);
+    focusEditor (editorCol) {
+      this.set('activeEditorCol', editorCol);
+    },
+
+    selectFile (file) {
+      this.set('activeFile', file);
     },
 
     runNow () {
@@ -104,19 +109,19 @@ export default Em.Controller.extend({
         filePath = 'templates/components/foo-component.hbs';
       }
       if(type==='component-js') {
-        template = 'import Ember from \'ember\';\nexport default Ember.Component.extend({\n});';
+        template = 'import Ember from \'ember\';\n\nexport default Ember.Component.extend({\n});';
         filePath = 'components/foo-component.js';
       }
       else if(type==='model') {
-        template = 'import DS from \'ember-data\';\nexport default DS.Model.extend({\n});';
+        template = 'import DS from \'ember-data\';\n\nexport default DS.Model.extend({\n});';
         filePath = 'models/foo.js';
       }
       else if(type==='controller') {
-        template = 'import Ember from \'ember\';\nexport default Ember.Controller.extend({\n});';
+        template = 'import Ember from \'ember\';\n\nexport default Ember.Controller.extend({\n});';
         filePath = 'controllers/foo.js';
       }
       else if(type==='route') {
-        template = 'import Ember from \'ember\';\nexport default Ember.Route.extend({\n});';
+        template = 'import Ember from \'ember\';\n\nexport default Ember.Route.extend({\n});';
         filePath = 'routes/foo.js';
       }
       else if(type==='template') {
@@ -124,12 +129,12 @@ export default Em.Controller.extend({
         filePath = 'templates/foo.hbs';
       }
       else if(type==='router') {
-        template = 'import Ember from \'ember\';\nvar Router = Ember.Router.extend({\n  location: \'none\'\n});\n\nRouter.map(function() {\n});\n\nexport default Router;\n';
+        template = 'import Ember from \'ember\';\n\nvar Router = Ember.Router.extend({\n  location: \'none\'\n});\n\nRouter.map(function() {\n});\n\nexport default Router;\n';
         filePath = 'router.js';
         canChangePath = false;
       }
       else if(type==='twiddle.json') {
-        template = '{\n  "version": "' + config.version + '",\n  "dependencies": {\n    "jquery": "https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.js",\n    "ember": "https://cdnjs.cloudflare.com/ajax/libs/ember.js/1.13.5/ember.js",\n    "ember-data": "https://cdnjs.cloudflare.com/ajax/libs/ember-data.js/1.13.5/ember-data.js"\n  }\n}';
+        template = '{\n  "version": "' + config.APP.version + '",\n  "dependencies": {\n    "jquery": "https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.js",\n    "ember": "https://cdnjs.cloudflare.com/ajax/libs/ember.js/1.13.5/ember.js",\n    "ember-data": "https://cdnjs.cloudflare.com/ajax/libs/ember-data.js/1.13.5/ember-data.js"\n  }\n}';
         filePath = 'twiddle.json';
         canChangePath = false;
       }
@@ -152,6 +157,7 @@ export default Em.Controller.extend({
         this.get('model.files').pushObject(file);
         this.notify.info('File %@ was added'.fmt(file.get('filePath')));
         this.set('col1File', file);
+        this.set('activeEditorCol', '1');
       }
     },
 
