@@ -4,12 +4,20 @@ export default GistRoute.extend({
   model (params) {
     this.store.unloadAll('gistFile');
 
-    return this.store.find('gist', params.id).catch(() => { return null; });
+    return this.store.find('gist', params.id);
   },
-  afterModel (model) {
-    if (!model) {
-      alert('The gist was missing or secret.');
-      this.transitionTo('gist.new');
+
+  actions: {
+    error(error) {
+      if (error && error.errors && error.errors.length > 0) {
+        let error1 = error.errors[0];
+        if (error1.status === 404) {
+          alert('The gist is missing or secret.');
+          return this.transitionTo('gist.new');
+        }
+      }
+
+      return true;
     }
   }
 });
