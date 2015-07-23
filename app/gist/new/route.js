@@ -11,6 +11,8 @@ export default GistRoute.extend({
     model.get('files').pushObject(this.get('emberCli').generate('controllers/application'));
     model.get('files').pushObject(this.get('emberCli').generate('templates/application'));
     model.get('files').pushObject(this.get('emberCli').generate('twiddle.json'));
+    model.get('files').pushObject(this.get('emberCli').generate('router'));
+    model.get('files').pushObject(this.get('emberCli').generate('css'));
 
     return model;
   }
