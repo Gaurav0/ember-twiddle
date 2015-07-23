@@ -2,8 +2,21 @@ export default Em.Component.extend({
   focusEditor: 'focusEditor',
   selectFile: 'selectFile',
 
+  editorMode: Em.computed('file.extension', function () {
+    switch(this.get('file.extension')) {
+      case '.js':
+        return 'javascript';
+      case '.hbs':
+        return 'handlebars';
+      case '.css':
+        return 'css';
+      default:
+        return 'html';
+    }
+  }),
+
   focusIn () {
-    this.sendAction('focusEditor', this.get('col'));
+    this.sendAction('focusEditor', this);
   },
 
   actions: {
