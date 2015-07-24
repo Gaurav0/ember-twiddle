@@ -39,6 +39,10 @@ export default Em.Controller.extend({
    * Build the application and set the iframe code
    */
   buildApp () {
+    if (this.get('isDestroyed')) {
+      return;
+    }
+
     this.set('isBuilding', true);
     this.set('buildErrors', []);
 
