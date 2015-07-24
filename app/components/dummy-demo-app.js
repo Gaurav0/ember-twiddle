@@ -1,4 +1,6 @@
 import ResizeMixin from 'ember-twiddle/lib/resize-mixin';
+import config from '../config/environment';
+
 
 export default Em.Component.extend(ResizeMixin, {
   iframeId: 'dummy-content-iframe',
@@ -16,8 +18,7 @@ export default Em.Component.extend(ResizeMixin, {
     ifrm.id=this.iframeId;
     this.element.appendChild(ifrm);
 
-    var depsTags =
-      '<script type="text/javascript" src="assets/loader.js"></script>';
+    var depsTags = '';
 
     var deps = this.get('twiddleJson').dependencies;
     Object.keys(deps).forEach(function(depKey) {
@@ -29,7 +30,7 @@ export default Em.Component.extend(ResizeMixin, {
       }
     });
 
-    depsTags += '<script type="text/javascript" src="assets/twiddle-vendor.js"></script>';
+    depsTags += '<script type="text/javascript" src="%@assets/twiddle-deps.js?%@"></script>'.fmt(config.assetsHost, config.APP.version);
 
     var appjs = '<script type="text/javascript">%@</script>'.fmt(this.get('code'));
     var appCss = '<style type="text/css">%@</style>'.fmt(this.get('styles'));
