@@ -18,6 +18,10 @@ const requiredFiles = [
   'twiddle.json'
 ];
 
+const defaultTwiddleJsonDependencies = {
+  'ember-template-compiler': 'https://cdnjs.cloudflare.com/ajax/libs/ember.js/1.13.5/ember-template-compiler.js'
+};
+
 const availableBlueprints = {
   'templates/application': {
     blueprint: 'templates/application',
@@ -186,7 +190,19 @@ export default Em.Service.extend({
   },
 
   getTwiddleJson (gist) {
-    return JSON.parse(gist.get('files').findBy('filePath', 'twiddle.json').get('content'));
+    let twiddleJson = JSON.parse(gist.get('files').findBy('filePath', 'twiddle.json').get('content'));
+
+    var knownDepedencies = Object.keys(defaultTwiddleJsonDependencies);
+
+    for (let index = 0, length = knownDepedencies.length; index < length; index++) {
+      let dependency = knownDepedencies[index];
+
+      if (!twiddleJson.dependencies.hasOwnProperty(dependency)) {
+        twiddleJson.dependencies[dependency] = defaultTwiddleJsonDependencies[dependency];
+      }
+    }
+
+    return twiddleJson;
   },
 
   /**
@@ -272,4 +288,3 @@ function contentForAppBoot (content, config) {
 function calculateAppConfig(config) {
   return JSON.stringify(config.APP || {});
 }
-
