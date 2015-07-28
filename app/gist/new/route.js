@@ -15,5 +15,11 @@ export default GistRoute.extend({
     model.get('files').pushObject(this.get('emberCli').generate('css'));
 
     return model;
+  },
+
+  setupController() {
+    this._super.apply(this, arguments);
+
+    this.controllerFor('gist').set('unsaved', true);
   }
 });
