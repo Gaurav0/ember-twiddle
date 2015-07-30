@@ -8,7 +8,7 @@ module.exports = function(environment) {
     locationType: 'auto',
     host: 'https://api.github.com',
     githubOauthUrl: 'https://gatekeeper-gaurav.herokuapp.com/authenticate/',
-    assetsHost: '',
+    assetsHost: '/',
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
