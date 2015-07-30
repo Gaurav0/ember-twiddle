@@ -46,7 +46,7 @@ test('deleting a gist loaded in two columns', function(assert) {
     });
 
     // TODO: Replace brittle for loop test code with "while there are files left..."
-    for (var i = 0; i < 2; ++i) {
+    for (var i = 0; i < 4; ++i) {
       click(firstFilePicker);
       click(anyFile);
       click(fileMenu);
