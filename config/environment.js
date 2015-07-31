@@ -73,5 +73,9 @@ module.exports = function(environment) {
     };
   }
 
+  if (environment === 'staging') {
+    ENV.assetsHost = '//canary-assets.ember-twiddle.com/';
+  }
+
   return ENV;
 };
