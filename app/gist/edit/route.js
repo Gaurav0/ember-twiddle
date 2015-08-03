@@ -1,3 +1,4 @@
+import Ember from "ember";
 import GistRoute from "ember-twiddle/routes/gist-base-route";
 
 export default GistRoute.extend({
@@ -10,7 +11,11 @@ export default GistRoute.extend({
   setupController() {
     this._super.apply(this, arguments);
 
-    this.controllerFor('gist').set('unsaved', false);
+    let gistController = this.controllerFor('gist');
+    gistController.rebuildApp();
+    Ember.run.schedule('afterRender', function() {
+      gistController.set('unsaved', false);
+    });
   },
 
   actions: {
