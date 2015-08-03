@@ -23,6 +23,7 @@
     "FakeXMLHttpRequest": "~1.2.0"
   },
   "resolutions": {
-    "codemirror": "~5.5.0"
+    "codemirror": "~5.5.0",
+    "FakeXMLHttpRequest": "~1.2.0"
   }
 }
