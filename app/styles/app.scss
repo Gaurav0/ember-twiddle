@@ -237,19 +237,6 @@ body {
 	}
 }
 
-.toolbar .dropdown {
-  line-height: 26px;
-
-  &.open .dropdown-toggle {
-    color: #331915;
-    text-shadow: rgba(255, 255, 255, 0.2) 0 1px 0px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-    border: 1px solid #923c2e;
-    box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0px, inset rgba(0, 0, 0, 0.17) 0 1px 1px;
-  }
-}
-
 .dropdown {
 	li {
 		cursor: pointer;
