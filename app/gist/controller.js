@@ -162,13 +162,6 @@ export default Ember.Controller.extend({
       }
     },
 
-    showErrors () {
-      this.get('buildErrors').forEach((error) => {
-        console.error(error);
-      });
-      this.notify.info('Errors were dumped to console');
-    },
-
     removeFile (file) {
       if(confirm(`Are you sure you want to remove this file?\n\n${file.get('filePath')}`)) {
         file.deleteRecord();
