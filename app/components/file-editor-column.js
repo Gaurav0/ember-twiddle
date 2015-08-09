@@ -1,5 +1,8 @@
 import Ember from 'ember';
 
+const { computed } = Ember;
+const MAX_COLUMNS = 3;
+
 export default Ember.Component.extend({
   focusEditor: 'focusEditor',
   selectFile: 'selectFile',
@@ -17,6 +20,11 @@ export default Ember.Component.extend({
     }
   }),
 
+  lastColumn: computed('col', 'numColumns', function() {
+    let numColumns = this.get('numColumns');
+    return (this.get('col') | 0) === numColumns && numColumns < MAX_COLUMNS;
+  }),
+
   focusIn () {
     this.sendAction('focusEditor', this);
   },
@@ -29,6 +37,14 @@ export default Ember.Component.extend({
 
     valueUpdated() {
       this.sendAction('contentsChanged');
+    },
+
+    removeColumn(col) {
+      this.attrs.removeColumn(col);
+    },
+
+    addColumn() {
+      this.attrs.addColumn();
     }
   }
 });
