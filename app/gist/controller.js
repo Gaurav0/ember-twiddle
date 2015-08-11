@@ -1,5 +1,6 @@
 import Ember from "ember";
 import config from '../config/environment';
+import Settings from '../models/settings';
 
 const {
   computed,
@@ -59,6 +60,8 @@ export default Ember.Controller.extend({
   showCol1: computed.gte('realNumColumns', 1),
   showCol2: computed.gte('realNumColumns', 2),
   showCol3: computed.gte('realNumColumns', 3),
+
+  settings: Settings.create(),
 
   /**
    * Errors during build
@@ -259,6 +262,12 @@ export default Ember.Controller.extend({
       let numColumns = this.get('realNumColumns');
 
       this.transitionToRoute({queryParams: {numColumns: numColumns + 1}}).then(this.initializeColumns.bind(this));
+    },
+
+    setEditorKeyMap (keyMap) {
+      const settings = this.get('settings');
+      settings.set('keyMap', keyMap);
+      settings.save();
     }
   },
 
