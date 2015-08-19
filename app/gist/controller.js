@@ -73,6 +73,11 @@ export default Ember.Controller.extend({
   isLiveReload: true,
 
   /**
+   * Whether the file tree is currently shown
+   */
+  fileTreeShown: false,
+
+  /**
    * Build the application and set the iframe code
    */
   buildApp () {
@@ -277,6 +282,14 @@ export default Ember.Controller.extend({
       this.buildApp();
     },
 
+    showFileTree() {
+      this.set('fileTreeShown', true);
+    },
+
+    hideFileTree() {
+      this.set('fileTreeShown', false);
+    },
+
     deleteGist (gist) {
       if(confirm(`Are you sure you want to remove this gist from Github?\n\n${gist.get('description')}`)) {
         gist.destroyRecord();
@@ -373,6 +386,14 @@ export default Ember.Controller.extend({
       this.transitionToRoute({
         queryParams: {
           numColumns: numColumns + 1
+        }
+      }).then(this.initializeColumns.bind(this));
+    },
+
+    exitFullScreen() {
+      this.transitionToRoute({
+        queryParams: {
+          fullScreen: false
         }
       }).then(this.initializeColumns.bind(this));
     },

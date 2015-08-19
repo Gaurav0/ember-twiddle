@@ -32,9 +32,16 @@
 
 <div class="row twiddle-panes">
   {{#unless fullScreen}}
-    <div class="col-md-4 file-tree">
-      {{ember-jstree data=fileTreeData}}
-    </div>
+    {{#if fileTreeShown}}
+      <div class="col-md-4 file-tree">
+        <div class="header">
+          <div class="nav-right">
+            <span class="glyphicon glyphicon-chevron-left" {{action 'hideFileTree'}}></span>
+          </div>
+        </div>
+        {{ember-jstree data=fileTreeData}}
+      </div>
+    {{/if}}
 
     {{#each columns as |column|}}
       {{#if column.show}}
@@ -44,16 +51,18 @@
                                allFiles=model.files
                                keyMap=settings.keyMap
                                numColumns=realNumColumns
+                               fileTreeShown=fileTreeShown
                                contentsChanged="contentsChanged"
                                removeColumn=(action "removeColumn")
                                addColumn=(action "addColumn")
+                               showFileTree=(action "showFileTree")
           }}
         </div>
       {{/if}}
     {{/each}}
   {{/unless}}
 
-  <div class="col-md-4 output">
+  <div class="col-md-4 output {{if fullScreen 'full-screen'}}">
     <div class="header">
       {{#if noColumns}}
         <span class="glyphicon glyphicon-plus" {{action 'addColumn'}}></span>
@@ -68,6 +77,9 @@
       <div>{{applicationUrl}}</div>
     </div>
     {{dummy-demo-app html=buildOutput}}
+    {{#if fullScreen}}
+      <a class="exit-full-screen-link" {{action 'exitFullScreen'}}>Edit Twiddle</a>
+    {{/if}}
   </div>
 
 </div>
