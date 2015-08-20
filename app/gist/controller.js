@@ -3,7 +3,6 @@ import config from '../config/environment';
 import Settings from '../models/settings';
 import ErrorMessages from 'ember-twiddle/helpers/error-messages';
 import Column from '../utils/column';
-import _ from 'lodash/lodash';
 
 const {
   computed,
@@ -105,50 +104,6 @@ export default Ember.Controller.extend({
     return Math.min(this.get('numColumns'), MAX_COLUMNS);
   }),
   noColumns: computed.equal('numColumns', 0),
-
-  /**
-   * Calculate data for file tree
-   */
-  fileTreeData: computed('model.files.[]', function() {
-    let seq = 0;
-    let treeData = this.get('model.files').map(function(file) {
-      let path = file.get('filePath');
-      let parentPath = path.split("/").slice(0, -1).join("/");
-      if (parentPath === "") {
-        parentPath = "#";
-      }
-      return {
-        id: "node" + seq++,
-        text: path,
-        parent: parentPath
-      };
-    });
-
-    let paths = _.uniq(_.pluck(treeData, 'text'));
-    let parents = _.uniq(_.pluck(treeData, 'parent'));
-    parents.forEach(function(parent) {
-      if (!paths.contains(parent) && parent !== "#") {
-        treeData.push({
-          id: "node" + seq++,
-          text: parent,
-          parent: "#"
-        });
-      }
-    });
-
-    let idMap = {};
-    treeData.forEach(function(node) {
-      idMap[node.text] = node.id;
-    });
-
-    treeData.forEach(function(node) {
-      if (node.parent !== "#") {
-        node.parent = idMap[node.parent];
-      }
-    });
-
-    return treeData;
-  }),
 
   /**
    * Creates the column objects
@@ -275,6 +230,13 @@ export default Ember.Controller.extend({
     },
 
     selectFile (file) {
+      this.set('activeFile', file);
+    },
+
+    openFile(filePath) {
+      let file = this.get('model.files').findBy('filePath', filePath);
+      this.setColumnFile(1, file);
+      this.set('activeEditorCol', '1');
       this.set('activeFile', file);
     },
 
