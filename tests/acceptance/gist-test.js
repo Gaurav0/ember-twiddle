@@ -118,8 +118,8 @@ test('can add component (js and hbs)', function(assert){
     let fileNames = findMapText(`${firstFilePickerFiles}  a`);
     let jsFile = `${promptValue}.js`;
     let hbsFile = `templates/${promptValue}.hbs`;
-    assert.equal(fileNames[3], jsFile);
-    assert.equal(fileNames[4], hbsFile);
+    assert.equal(fileNames[5], jsFile);
+    assert.equal(fileNames[6], hbsFile);
     let columnFiles = findMapText(displayedFiles);
     assert.deepEqual(columnFiles, [jsFile, hbsFile], 'Added files are displayed');
 
