@@ -23,6 +23,7 @@ module('Acceptance | gist', {
     this.application = startApp();
     this.cacheConfirm = window.confirm;
     this.cachePrompt = window.prompt;
+    this.cacheAlert = window.alert;
     window.confirm = () => true;
     window.prompt = () => promptValue;
 
@@ -33,6 +34,7 @@ module('Acceptance | gist', {
     Ember.run(this.application, 'destroy');
     window.confirm = this.cacheConfirm;
     window.prompt = this.cachePrompt;
+    window.alert = this.cacheAlert;
   }
 });
 
@@ -126,10 +128,38 @@ test('can add component (js and hbs)', function(assert){
   });
 });
 
-test('component without hyphen fails', function(assert){
+test('can add component (js and hbs) using pod format', function(assert){
 
-  let alertFn = window.alert;
+  let origFileCount;
+  promptValue = "my-comp";
+  visit('/');
+  andThen(function(){
+    origFileCount =  find(firstFilePickerFiles).length;
+  });
+
+  click(fileMenu);
+  click('.add-component-link');
+  click(firstFilePicker);
+  andThen(function() {
+    let numFiles = find(firstFilePickerFiles).length;
+    assert.equal(numFiles, origFileCount + 2, 'Added component files');
+    let fileNames = findMapText(`${firstFilePickerFiles}  a`);
+    let jsFile = `${promptValue}/component.js`;
+    let hbsFile = `${promptValue}/template.hbs`;
+    assert.equal(fileNames[3], jsFile);
+    assert.equal(fileNames[4], hbsFile);
+    let columnFiles = findMapText(displayedFiles);
+    assert.deepEqual(columnFiles, [jsFile, hbsFile], 'Added files are displayed');
+
+  });
+});
+
+test('component without hyphen fails', function(assert){
+  assert.expect(2);
+
+  let called = false;
   window.alert = function(msg){
+    called = true;
     assert.equal(msg, ErrorMessages.componentsNeedHyphens);
   };
   promptValue = "components/some-dir/mycomp";
@@ -138,7 +168,7 @@ test('component without hyphen fails', function(assert){
   click('.add-component-link');
   click(firstFilePicker);
   andThen(function(){
-    window.alert = alertFn;
+    assert.ok(called, "alert was called");
   });
 });
 
