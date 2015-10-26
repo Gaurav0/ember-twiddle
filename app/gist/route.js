@@ -30,13 +30,13 @@ export default Ember.Route.extend({
       gist.save().then(() => {
         this.get('notify').info(`Saved to Gist ${gist.get('id')} on Github`);
         if(newGist) {
-          this.transitionTo('gist.edit', gist).then(function() {
+          this.transitionTo('gist.edit', gist).then(() => {
             this.send('setSaved');
           });
         } else {
           this.send('setSaved');
         }
-      });
+      }).catch((this.catchSaveError.bind(this)));
     },
 
     setSaved () {
@@ -84,7 +84,18 @@ export default Ember.Route.extend({
     if (error && error.errors) {
       let firstError = error.errors[0];
       if (firstError.code === "unprocessable" && firstError.field === "forks") {
-        this.get('notify').info("You already own this gist.");
+        this.get('notify').error("You already own this gist.");
+        return;
+      }
+    }
+    throw error;
+  },
+
+  catchSaveError(error) {
+    if (error && error.errors) {
+      let firstError = error.errors[0];
+      if (firstError.code === "unprocessable") {
+        this.get('notify').error("The gist is invalid, and could not be saved.");
         return;
       }
     }
