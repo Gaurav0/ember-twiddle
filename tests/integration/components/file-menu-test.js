@@ -11,6 +11,7 @@ moduleForComponent('file-menu', 'Integration | Component | file menu', {
     this.removeFileCalled = false;
     this.saveGistCalled = false;
     this.forkCalled = false;
+    this.copyCalled = false;
     this.deleteGistCalled = false;
     this.signInViaGithubCalled = false;
 
@@ -53,6 +54,7 @@ moduleForComponent('file-menu', 'Integration | Component | file menu', {
     this.on('removeFile', (file) => { this.removeFileCalled = true; this.removedFile = file; });
     this.on('saveGist', (gist) => { this.saveGistCalled = true; this.gistToSave = gist; });
     this.on('fork', (gist) => { this.forkCalled = true; this.gistToFork = gist; });
+    this.on('copy', () => { this.copyCalled = true; });
     this.on('deleteGist', (gist) => { this.deleteGistCalled = true; this.gistToDelete = gist; });
     this.on('signInViaGithub', () => { this.signInViaGithubCalled = true; });
 
@@ -65,6 +67,7 @@ moduleForComponent('file-menu', 'Integration | Component | file menu', {
                               removeFile=(action "removeFile")
                               saveGist="saveGist"
                               fork="fork"
+                              copy="copy"
                               deleteGist=(action "deleteGist")
                               signInViaGithub="signInViaGithub"}}`);
   }
@@ -115,6 +118,16 @@ test("it calls fork on clicking 'Fork Twiddle'", function(assert) {
   assert.equal(this.gistToFork, this.gist, 'fork was called with gist to fork');
 });
 
+test("it calls copy on clicking 'Copy Twiddle'", function(assert) {
+  assert.expect(1);
+
+  // logged in user is the same as the owner of the gist
+  this.set('session.currentUser.login', 'Gaurav0');
+  this.$('.test-copy-action').click();
+
+  assert.ok(this.copyCalled, 'copy was called');
+});
+
 test("it calls deleteGist on clicking 'Delete Twiddle'", function(assert) {
   assert.expect(2);
 
@@ -131,4 +144,11 @@ test("it calls signInViaGithub when clicking on 'Sign In To Github To Save'", fu
   this.$('.test-sign-in-action').click();
 
   assert.ok(this.signInViaGithubCalled, 'signInViaGithub was called');
+});
+
+test("it only renders 'New Twiddle' menu item, when no model is specified", function(assert) {
+  this.render(hbs`{{file-menu}}`);
+
+  assert.equal(this.$('.dropdown-menu li').length, 1, "only one menu item is rendered");
+  assert.equal(this.$('.dropdown-menu li').text().trim(), "New Twiddle");
 });

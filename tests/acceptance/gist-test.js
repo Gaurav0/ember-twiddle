@@ -3,6 +3,7 @@ import { module, test } from 'qunit';
 import startApp from 'ember-twiddle/tests/helpers/start-app';
 import { findMapText } from 'ember-twiddle/tests/helpers/util';
 import ErrorMessages from 'ember-twiddle/helpers/error-messages';
+import { stubValidSession } from 'ember-twiddle/tests/helpers/torii';
 
 
 const firstColumn = '.code:first-of-type';
@@ -172,6 +173,32 @@ test('component without hyphen fails', function(assert){
   });
 });
 
+test('can add service', function(assert){
+  assert.expect(3);
+
+  let origFileCount;
+  promptValue = "my-service/service.js";
+  visit('/');
+  andThen(function(){
+    origFileCount = find(firstFilePickerFiles).length;
+  });
+
+  click(fileMenu);
+  click('.test-add-service-link');
+  click(firstFilePicker);
+
+  andThen(function() {
+    let numFiles = find(firstFilePickerFiles).length;
+    assert.equal(numFiles, origFileCount + 1, 'Added service file');
+
+    let fileNames = findMapText(`${firstFilePickerFiles}  a`);
+    assert.equal(fileNames[3], promptValue, 'Added the file with the right name');
+
+    let columnFiles = findMapText(displayedFiles);
+    assert.ok(columnFiles.contains(promptValue), 'Added file is displayed');
+  });
+});
+
 
 test('unsaved indicator', function(assert) {
   const indicator = ".test-unsaved-indicator";
@@ -195,5 +222,73 @@ test('unsaved indicator', function(assert) {
 
   andThen(function() {
     assert.equal(find(indicator).length, 1, "Unsaved indicator reappears after editing");
+  });
+});
+
+test('own gist can be copied into a new one', function(assert) {
+  // set owner of gist as currently logged in user
+  stubValidSession(this.application, {
+    currentUser: { login: "Gaurav0" },
+    "github-oauth2": {}
+  });
+
+  runGist([
+    {
+      filename: 'application.template.hbs',
+      content: 'hello world!',
+    }
+  ]);
+
+  andThen(function() {
+    assert.equal(find('.test-unsaved-indicator').length, 0, "No unsaved indicator shown");
+  });
+
+  fillIn('.title input', "my twiddle");
+  andThen(function() {
+    assert.equal(find('.title input').val(), "my twiddle");
+  });
+
+  click('.test-copy-action');
+
+  andThen(function() {
+    waitForLoadedIFrame();
+  });
+
+  andThen(function() {
+    assert.equal(find('.title input').val(), "New Twiddle", "Description is reset");
+    assert.equal(find('.test-unsaved-indicator').length, 1, "Unsaved indicator appears when gist is copied");
+    assert.equal(find('.test-copy-action').length, 0, "Menu item to copy gist is not shown anymore");
+    assert.equal(outputContents('div'), 'hello world!');
+  });
+});
+
+test('accessing /:gist/copy creates a new Twiddle with a copy of the gist', function(assert) {
+  runGist([
+    {
+      filename: 'application.template.hbs',
+      content: 'hello world!',
+    }
+  ]);
+
+  andThen(function() {
+    assert.equal(find('.test-unsaved-indicator').length, 0, "No unsaved indicator shown");
+  });
+
+  fillIn('.title input', "my twiddle");
+  andThen(function() {
+    assert.equal(find('.title input').val(), "my twiddle");
+  });
+
+  visit('/35de43cb81fc35ddffb2/copy');
+
+  andThen(function() {
+    waitForLoadedIFrame();
+  });
+
+  andThen(function() {
+    assert.equal(currentURL(), '/');
+    assert.equal(find('.title input').val(), "New Twiddle", "Description is reset");
+    assert.equal(find('.test-unsaved-indicator').length, 1, "Unsaved indicator appears when gist is copied");
+    assert.equal(outputContents('div'), 'hello world!');
   });
 });

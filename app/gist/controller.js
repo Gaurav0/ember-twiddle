@@ -14,6 +14,7 @@ const MAX_COLUMNS = 3;
 
 export default Ember.Controller.extend({
   emberCli: inject.service('ember-cli'),
+  dependencyResolver: inject.service(),
   notify: inject.service('notify'),
   version: config.APP.version,
   revision: (config.currentRevision || '').substring(0,7),
@@ -27,6 +28,9 @@ export default Ember.Controller.extend({
     this.setupWindowUpdate();
     this.set('activeEditorCol', '1');
   },
+
+  emberVersions: computed.oneWay('dependencyResolver.emberVersions'),
+  emberDataVersions: computed.oneWay('dependencyResolver.emberDataVersions'),
 
   /**
    * Output from the build, sets the `code` attr on the component
@@ -236,6 +240,15 @@ export default Ember.Controller.extend({
       this.rebuildApp();
     },
 
+    versionSelected: function(dependency, version) {
+      var gist = this.get('model');
+      var emberCli = this.get('emberCli');
+
+      emberCli.updateDependencyVersion(gist, dependency, version).then(() => {
+        this.rebuildApp();
+      });
+    },
+
     liveReloadChanged(isLiveReload) {
       this.set('isLiveReload', isLiveReload);
       this.rebuildApp();
@@ -260,6 +273,11 @@ export default Ember.Controller.extend({
 
     runNow () {
       this.buildApp();
+    },
+
+    titleChanged() {
+      this.set('unsaved', true);
+      this.send('titleUpdated');
     },
 
     showFileTree() {

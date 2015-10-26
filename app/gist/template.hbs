@@ -10,14 +10,19 @@
                 removeFile=(action "removeFile")
                 saveGist="saveGist"
                 fork="fork"
+                copy="copy"
                 deleteGist=(action "deleteGist")
                 signInViaGithub="signInViaGithub"}}
 
     {{editor-mode-menu setKeyMap=(action "setEditorKeyMap")}}
+
+    {{versions-menu versionSelected=(action "versionSelected")
+                    emberVersions=emberVersions
+                    emberDataVersions=emberDataVersions }}
   </ul>
 
   <div class="title">
-    {{title-input value=model.description}}
+    {{title-input value=model.description titleChanged=(action "titleChanged")}}
     {{saved-state-indicator model=model
                             unsaved=unsaved
     }}
@@ -27,6 +32,7 @@
               version=version
               signInViaGithub="signInViaGithub"
               signOut="signOut"
+              showTwiddles="showTwiddles"
   }}
 </div>
 

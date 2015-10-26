@@ -3,6 +3,7 @@ import Path from 'npm:path';
 import blueprints from '../lib/blueprints';
 import config from '../config/environment';
 import Ember from 'ember';
+import moment from 'moment';
 
 const twiddleAppName = 'demo-app';
 
@@ -64,6 +65,10 @@ const availableBlueprints = {
     blueprint: 'route',
     filePath: 'my-route/route.js',
   },
+  'service': {
+    blueprint: 'service',
+    filePath: 'my-service/service.js'
+  },
   'template': {
     blueprint: 'template',
     filePath: 'my-route/template.hbs',
@@ -92,6 +97,8 @@ const requiredDependencies = [
  * source code at https://github.com/ember-cli/ember-cli
  */
 export default Ember.Service.extend({
+  dependencyResolver: Ember.inject.service(),
+
   init () {
     this._super();
     this.set('store', this.container.lookup("service:store"));
@@ -176,12 +183,16 @@ export default Ember.Service.extend({
 
   buildHtml (gist, appJS, appCSS) {
     let index = blueprints['index.html'];
-    let deps = this.getTwiddleJson(gist).dependencies;
+    let twiddleJSON = this.getTwiddleJson(gist);
+    let deps = twiddleJSON.dependencies;
 
     let depCssLinkTags = '';
     let depScriptTags ='';
     let appScriptTag = `<script type="text/javascript">${appJS}</script>`;
     let appStyleTag = `<style type="text/css">${appCSS}</style>`;
+
+    let EmberENV = twiddleJSON.EmberENV || {};
+    depScriptTags += `<script type="text/javascript">EmberENV = ${JSON.stringify(EmberENV)};</script>`;
 
     Object.keys(deps).forEach(function(depKey) {
       let dep = deps[depKey];
@@ -196,6 +207,11 @@ export default Ember.Service.extend({
 
     index = index.replace('{{content-for \'head\'}}', `${depCssLinkTags}\n${appStyleTag}`);
     index = index.replace('{{content-for \'body\'}}', `${depScriptTags}\n${appScriptTag}`);
+
+    // replace the {{build-timestamp}} placeholder with the number of
+    // milliseconds since the Unix Epoch:
+    // http://momentjs.com/docs/#/displaying/unix-offset/
+    index = index.replace('{{build-timestamp}}', +moment());
 
     return index;
   },
@@ -242,7 +258,37 @@ export default Ember.Service.extend({
       }
     });
 
+    var dependencyResolver = this.get('dependencyResolver');
+    dependencyResolver.resolveDependencies(twiddleJson.dependencies);
+
     return twiddleJson;
+  },
+
+  updateDependencyVersion: function(gist, dependencyName, version) {
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      var twiddle = gist.get('files').findBy('filePath', 'twiddle.json');
+
+      var json;
+      try {
+        json = JSON.parse(twiddle.get('content'));
+      } catch (e) {
+        return reject(e);
+      }
+
+      json.dependencies[dependencyName] = version;
+
+      // since ember and ember-template-compiler should always have the same
+      // version, we update the version for the ember-template-compiler too, if
+      // the ember dependency is updated
+      if (dependencyName === 'ember' && json.dependencies.hasOwnProperty('ember-template-compiler')) {
+        json.dependencies['ember-template-compiler'] = version;
+      }
+
+      json = JSON.stringify(json, null, '  ');
+      twiddle.set('content', json);
+
+      resolve();
+    });
   },
 
   /**
@@ -270,7 +316,8 @@ export default Ember.Service.extend({
     // let templateCode = Ember.HTMLBars.precompile(code || '');
 
     // Compiles all templates at runtime.
-    return this.compileJs('export default Ember.HTMLBars.compile(`' + (code || '') + '`);', filePath);
+    const mungedCode = (code || '').replace(/\\/g, "\\\\"); // Prevent backslashes from being escaped
+    return this.compileJs('export default Ember.HTMLBars.compile(`' + mungedCode + '`);', filePath);
   },
 
   compileCss(code, moduleName) {

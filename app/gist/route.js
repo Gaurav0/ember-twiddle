@@ -5,10 +5,19 @@ const { inject } = Ember;
 export default Ember.Route.extend({
   notify: inject.service('notify'),
 
+  titleToken: Ember.computed.readOnly('controller.model.description'),
+
   beforeModel () {
     return this.session.fetch('github-oauth2').catch(function() {
       // Swallow error for now
     });
+  },
+
+  deactivate () {
+    var gist = this.controller.get('model');
+    if (gist.get('isNew')) {
+      this.store.unloadRecord(gist);
+    }
   },
 
   actions: {
@@ -47,6 +56,14 @@ export default Ember.Route.extend({
       }).catch(this.catchForkError.bind(this));
     },
 
+    copy () {
+      this.transitionTo('gist.new', {
+        queryParams: {
+          copyCurrentTwiddle: true
+        }
+      });
+    },
+
     signInViaGithub () {
       this.session.open('github-oauth2').catch(function(error) {
         alert('Could not sign you in: ' + error.message);
@@ -56,6 +73,10 @@ export default Ember.Route.extend({
 
     signOut () {
       this.session.close();
+    },
+
+    showTwiddles: function() {
+      this.transitionTo('twiddles');
     }
   },
 

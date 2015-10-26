@@ -1,12 +1,14 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
+  titleToken: 'My Saved Twiddles',
+
   beforeModel() {
-    return this.session.fetch('github-oauth2').catch(function(error) {
+    return this.session.fetch('github-oauth2').catch(error => {
       if (!error) {
         this.transitionTo('/');
       }
-    }.bind(this));
+    });
   },
 
   model() {
