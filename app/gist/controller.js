@@ -1,5 +1,4 @@
 import Ember from "ember";
-import config from '../config/environment';
 import Settings from '../models/settings';
 import ErrorMessages from 'ember-twiddle/helpers/error-messages';
 import Column from '../utils/column';
@@ -18,7 +17,7 @@ export default Ember.Controller.extend({
   notify: inject.service('notify'),
   version: config.APP.version,
   revision: (config.currentRevision || '').substring(0,7),
-  queryParams: ['numColumns', 'fullScreen'],
+  queryParams: ['numColumns', 'fullScreen', 'route'],
   numColumns: 2,
   fullScreen: false,
 
@@ -93,6 +92,7 @@ export default Ember.Controller.extend({
 
     this.set('isBuilding', true);
     this.set('buildErrors', []);
+    this.set('model.initialRoute', this.get('route'));
 
     this.get('emberCli').compileGist(this.get('model')).then(buildOutput => {
       this.set('isBuilding', false);
@@ -322,6 +322,24 @@ export default Ember.Controller.extend({
       });
     },
 
+    addHelper() {
+      let type = 'helper';
+      let fileProperties = this.get('emberCli').buildProperties(type);
+      let filePath = prompt('File path', fileProperties.filePath);
+      let splitFilePath = filePath.split('/');
+      let file = splitFilePath[splitFilePath.length - 1];
+      let name = file.replace('.js', '').camelize();
+
+      fileProperties = this.get('emberCli').buildProperties(type, {
+        camelizedModuleName: name
+      });
+
+      if (this.isPathInvalid(type, filePath)) {
+        return;
+      }
+      this.createFile(filePath, fileProperties);
+    },
+
     /**
      * Add a new file to the model
      * @param {String|null} type Blueprint name or null for empty file
@@ -425,7 +443,14 @@ export default Ember.Controller.extend({
       run(() => {
         if(typeof m.data==='object' && 'setDemoAppUrl' in m.data) {
           if (!this.get('isDestroyed')) {
-            this.set('applicationUrl', m.data.setDemoAppUrl || '/');
+            if (window.messagesWaiting > 0) {
+              window.messagesWaiting = 0;
+            }
+            const newRoute = m.data.setDemoAppUrl || '/';
+            this.setProperties({
+              applicationUrl: newRoute,
+              route: newRoute === "/" ? undefined : newRoute
+            });
           }
         }
       });

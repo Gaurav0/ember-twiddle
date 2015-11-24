@@ -52,7 +52,7 @@ test("getTwiddleJson() resolves dependencies", function(assert) {
             "ember": "1.13.9",
             "ember-template-compiler": "2.0.1",
             "ember-data": "1.12.1",
-            "jquery": "https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.js"
+            "jquery": "//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.js"
           }
         }
       `
@@ -62,10 +62,10 @@ test("getTwiddleJson() resolves dependencies", function(assert) {
   var twiddleJson = service.getTwiddleJson(gist);
 
   assert.deepEqual(twiddleJson.dependencies, {
-    'ember': "http://cdnjs.cloudflare.com/ajax/libs/ember.js/1.13.9/ember.debug.js",
-    'ember-template-compiler': "http://cdnjs.cloudflare.com/ajax/libs/ember.js/2.0.1/ember-template-compiler.js",
-    'ember-data': "http://cdnjs.cloudflare.com/ajax/libs/ember-data.js/1.12.1/ember-data.js",
-    'jquery': "https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.js"
+    'ember': "//cdnjs.cloudflare.com/ajax/libs/ember.js/1.13.9/ember.debug.js",
+    'ember-template-compiler': "//cdnjs.cloudflare.com/ajax/libs/ember.js/2.0.1/ember-template-compiler.js",
+    'ember-data': "//cdnjs.cloudflare.com/ajax/libs/ember-data.js/1.12.1/ember-data.js",
+    'jquery': "//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.js"
   });
 });
 
@@ -122,4 +122,30 @@ test("updateDependencyVersion() updates the version of ember-template-compiler i
     assert.equal(parsed.dependencies.ember, 'release');
     assert.equal(parsed.dependencies['ember-template-compiler'], 'release');
   });
+});
+
+test("buildProperties() works as expected without replacements", function (assert) {
+  assert.expect(3);
+
+  var service = this.subject();
+  var props = service.buildProperties('helper');
+
+  assert.equal(props.filePath, 'helpers/my-helper.js', 'filePath set');
+  assert.ok(props.content, 'has content');
+  assert.ok(props.content.indexOf('<%=') === -1, 'No replacement tags in content');
+});
+
+test("buildProperties() works as expected with replacements", function (assert) {
+  assert.expect(5);
+
+  var service = this.subject();
+  var props = service.buildProperties('helper', {
+    camelizedModuleName: 'myHelper'
+  });
+
+  assert.equal(props.filePath, 'helpers/my-helper.js', 'filePath set');
+  assert.ok(props.content, 'has content');
+  assert.ok(props.content.indexOf('<%=') === -1, 'No replacement tags in content');
+  assert.ok(props.content.indexOf('myHelper(params') !== -1, 'Replacements worked');
+  assert.ok(props.content.indexOf('helper(myHelper)') !== -1, 'Replacements worked if multiple');
 });

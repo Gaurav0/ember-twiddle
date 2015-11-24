@@ -4,6 +4,7 @@ const { inject } = Ember;
 
 export default Ember.Route.extend({
   notify: inject.service('notify'),
+  demoApp: inject.service(),
 
   titleToken: Ember.computed.readOnly('controller.model.description'),
 
@@ -77,6 +78,10 @@ export default Ember.Route.extend({
 
     showTwiddles: function() {
       this.transitionTo('twiddles');
+    },
+
+    urlChanged: function(newUrl) {
+      this.get('demoApp').postMessage({ newUrl });
     }
   },
 
@@ -88,6 +93,7 @@ export default Ember.Route.extend({
         return;
       }
     }
+    this.get('notify').error("Something went wrong. The gist was not forked.");
     throw error;
   },
 
@@ -99,6 +105,7 @@ export default Ember.Route.extend({
         return;
       }
     }
+    this.get('notify').error("Something went wrong. The gist was not saved.");
     throw error;
   }
 });

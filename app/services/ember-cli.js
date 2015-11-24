@@ -61,6 +61,10 @@ const availableBlueprints = {
     blueprint: 'model',
     filePath: 'models/my-model.js',
   },
+  'helper': {
+    blueprint: 'helper',
+    filePath: 'helpers/my-helper.js'
+  },
   'route': {
     blueprint: 'route',
     filePath: 'my-route/route.js',
@@ -108,13 +112,23 @@ export default Ember.Service.extend({
     return this.store.createRecord('gistFile', this.buildProperties(type));
   },
 
-  buildProperties(type) {
+  buildProperties(type, replacements) {
     if (type in availableBlueprints) {
       let blueprint = availableBlueprints[type];
+      let content = blueprints[blueprint.blueprint];
+
+      if (replacements) {
+        Object.keys(replacements).forEach(key => {
+          let token = `<%= ${key} %>`;
+          let value = replacements[key];
+
+          content = content.replace(new RegExp(token, 'g'), value);
+        });
+      }
 
       return {
         filePath: blueprint.filePath,
-        content: blueprints[blueprint.blueprint].replace(/<\%\=(.*)\%\>/gi,'')
+        content: content.replace(/<\%\=(.*)\%\>/gi,'')
       };
     }
   },
@@ -182,6 +196,10 @@ export default Ember.Service.extend({
   },
 
   buildHtml (gist, appJS, appCSS) {
+    if (gist.get('initialRoute')) {
+      appJS += "window.location.hash='" + gist.get('initialRoute') + "';";
+    }
+
     let index = blueprints['index.html'];
     let twiddleJSON = this.getTwiddleJson(gist);
     let deps = twiddleJSON.dependencies;
@@ -254,7 +272,11 @@ export default Ember.Service.extend({
     var dependencies = JSON.parse(blueprints['twiddle.json']).dependencies;
     requiredDependencies.forEach(function(dep) {
       if (!twiddleJson.dependencies[dep] && dependencies[dep]) {
-        twiddleJson.dependencies[dep] = dependencies[dep];
+        if (dep === 'ember-template-compiler') {
+          twiddleJson.dependencies[dep] = twiddleJson.dependencies['ember'].replace('ember.debug.js', 'ember-template-compiler.js');
+        } else {
+          twiddleJson.dependencies[dep] = dependencies[dep];
+        }
       }
     });
 
@@ -353,7 +375,6 @@ function contentForAppBoot (content, config) {
   // doesn't recognize them properly...
   var monkeyPatchModules = [
     'ember',
-    'ember/resolver',
     'ember/load-initializers'
   ];
 
@@ -378,4 +399,3 @@ function contentForAppBoot (content, config) {
 function calculateAppConfig(config) {
   return JSON.stringify(config.APP || {});
 }
-

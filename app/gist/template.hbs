@@ -5,13 +5,14 @@
                 activeEditorCol=activeEditorCol
                 activeFile=activeFile
                 addFile=(action "addFile")
+                addHelper=(action "addHelper")
                 addComponent=(action "addComponent")
                 renameFile=(action "renameFile")
                 removeFile=(action "removeFile")
+                deleteGist=(action "deleteGist")
                 saveGist="saveGist"
                 fork="fork"
                 copy="copy"
-                deleteGist=(action "deleteGist")
                 signInViaGithub="signInViaGithub"}}
 
     {{editor-mode-menu setKeyMap=(action "setEditorKeyMap")}}
@@ -29,7 +30,6 @@
   </div>
 
   {{user-menu session=session
-              version=version
               signInViaGithub="signInViaGithub"
               signOut="signOut"
               showTwiddles="showTwiddles"
@@ -77,9 +77,9 @@
       }}
     </div>
     {{run-or-live-reload liveReloadChanged="liveReloadChanged" runNow="runNow"}}
-    <div class="url-bar">
-      <div>{{applicationUrl}}</div>
-    </div>
+      <div class="url-bar">
+        {{input value=applicationUrl enter="urlChanged"}}
+      </div>
     {{dummy-demo-app html=buildOutput}}
     {{#if fullScreen}}
       <a class="exit-full-screen-link" {{action 'exitFullScreen'}}>Edit Twiddle</a>

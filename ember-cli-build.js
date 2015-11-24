@@ -21,7 +21,8 @@ module.exports = function() {
     },
     fingerprint: {
       enabled: isProductionLikeBuild,
-      prepend: prepend
+      prepend: prepend,
+      extensions: ['js', 'css', 'png', 'jpg', 'gif', 'map', 'svg', 'eot', 'ttf', 'woff', 'woff2', 'ico']
     },
     codemirror: {
       modes: ['xml', 'javascript', 'handlebars', 'htmlmixed', 'css'],
@@ -51,12 +52,6 @@ module.exports = function() {
   app.import('vendor/hint.css');
   app.import('vendor/drags.js');
 
-  var twiddlicons = pickFiles('vendor/twiddlicon/',{
-    srcDir: '/',
-    include: ['**/*.woff', '**/*.eot', '**/*.ttf', '**/*.svg'],
-    destDir: '/assets'
-  });
-
   var loaderTree = pickFiles('bower_components', {
     srcDir: '/loader.js',
     files: ['loader.js'],
@@ -73,7 +68,7 @@ module.exports = function() {
     outputFile: '/assets/twiddle-deps.js',
   });
 
-  return mergeTrees([app.toTree(), twiddleVendorTree, loaderTree, twiddlicons]);
+  return mergeTrees([app.toTree(), twiddleVendorTree, loaderTree]);
 };
 
 // This copies code out of ember-cli's blueprints into
@@ -93,6 +88,7 @@ function getEmberCLIBlueprints() {
     'router': 'app/files/app/router.js',
     'service': 'service/files/__root__/__path__/__name__.js',
     'template': 'template/files/__root__/__path__/__name__.hbs',
+    'helper': 'helper/files/__root__/helpers/__name__.js'
   };
 
   for (var blueprintName in cliBlueprintFiles) {

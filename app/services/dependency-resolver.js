@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
-const EMBER_VERSIONS = ['2.1.0', '2.0.2', '1.13.10', '1.12.1'];
-const EMBER_DATA_VERSIONS = ['2.1.0', '2.0.1', '1.13.14'];
+const EMBER_VERSIONS = ['2.2.0', '2.1.1', '2.0.2', '1.13.11', '1.12.1'];
+const EMBER_DATA_VERSIONS = ['2.2.0', '2.1.0', '2.0.1', '1.13.15'];
 
 const VERSION_REGEX = /^\d+.\d+.\d+$/;
 
@@ -68,13 +68,13 @@ export default Ember.Service.extend({
   channelURL: function(name, channel) {
     var fileName = CHANNEL_FILENAME_MAP[name];
 
-    return `http://builds.emberjs.com/${channel}/${fileName}`;
+    return `//s3.amazonaws.com/builds.emberjs.com/${channel}/${fileName}`;
   },
 
   cdnURL: function(name, version) {
     var { library, fileName } = CDN_MAP[name];
 
-    return `http://cdnjs.cloudflare.com/ajax/libs/${library}/${version}/${fileName}`;
+    return `//cdnjs.cloudflare.com/ajax/libs/${library}/${version}/${fileName}`;
   },
 
   emberVersions: computed(function() {

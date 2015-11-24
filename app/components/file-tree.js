@@ -77,6 +77,9 @@ export default Ember.Component.extend({
       this.get('jsTreeActionReceiver').send('toggleNode', node.id);
     },
 
+    handleReady() {
+    },
+
     hideFileTree() {
       this.attrs.hideFileTree();
     },
