@@ -149,3 +149,18 @@ test("buildProperties() works as expected with replacements", function (assert) 
   assert.ok(props.content.indexOf('myHelper(params') !== -1, 'Replacements worked');
   assert.ok(props.content.indexOf('helper(myHelper)') !== -1, 'Replacements worked if multiple');
 });
+
+test('compileHbs includes moduleName', function(assert) {
+  var service = this.subject();
+  var result = service.compileHbs('foo', 'somePath/here.hbs');
+
+  assert.ok(result.indexOf('moduleName: "demo-app/somePath/here"') > -1, 'moduleName included');
+});
+
+test('compileHbs can include backticks', function(assert) {
+  var template = "`stuff`";
+  var service = this.subject();
+  var result = service.compileHbs(template, 'some-path');
+
+  assert.ok(result.indexOf(template) > -1, 'original template included');
+});

@@ -23,43 +23,43 @@ const requiredFiles = [
 const availableBlueprints = {
   'templates/application': {
     blueprint: 'templates/application',
-    filePath: 'application/template.hbs',
+    filePath: 'application/template.hbs'
   },
   'controllers/application': {
     blueprint: 'controllers/application',
-    filePath: 'application/controller.js',
+    filePath: 'application/controller.js'
   },
   'app': {
     blueprint: 'app',
-    filePath: 'app.js',
+    filePath: 'app.js'
   },
   'css': {
     blueprint: 'app.css',
-    filePath: 'styles/app.css',
+    filePath: 'styles/app.css'
   },
   'component-hbs': {
     blueprint: 'component-hbs',
-    filePath: 'my-component/template.hbs',
+    filePath: 'my-component/template.hbs'
   },
   'component-js': {
     blueprint: 'component-js',
-    filePath: 'my-component/component.js',
+    filePath: 'my-component/component.js'
   },
   'controller': {
     blueprint: 'controller',
-    filePath: 'my-route/controller.js',
+    filePath: 'my-route/controller.js'
   },
   'initializers/router': {
     blueprint: 'initializers/router',
-    filePath: 'initializers/router.js',
+    filePath: 'initializers/router.js'
   },
   'initializers/mouse-events': {
     blueprint: 'initializers/mouse-events',
-    filePath: 'initializers/mouse-events.js',
+    filePath: 'initializers/mouse-events.js'
   },
   'model': {
     blueprint: 'model',
-    filePath: 'models/my-model.js',
+    filePath: 'models/my-model.js'
   },
   'helper': {
     blueprint: 'helper',
@@ -67,7 +67,7 @@ const availableBlueprints = {
   },
   'route': {
     blueprint: 'route',
-    filePath: 'my-route/route.js',
+    filePath: 'my-route/route.js'
   },
   'service': {
     blueprint: 'service',
@@ -75,7 +75,7 @@ const availableBlueprints = {
   },
   'template': {
     blueprint: 'template',
-    filePath: 'my-route/template.hbs',
+    filePath: 'my-route/template.hbs'
   },
   'router': {
     blueprint: 'router',
@@ -338,8 +338,13 @@ export default Ember.Service.extend({
     // let templateCode = Ember.HTMLBars.precompile(code || '');
 
     // Compiles all templates at runtime.
-    const mungedCode = (code || '').replace(/\\/g, "\\\\"); // Prevent backslashes from being escaped
-    return this.compileJs('export default Ember.HTMLBars.compile(`' + mungedCode + '`);', filePath);
+    let moduleName = this.nameWithModule(filePath);
+
+    const mungedCode = (code || '')
+            .replace(/\\/g, "\\\\") // Prevent backslashes from being escaped
+            .replace(/`/g, "\\`"); // Prevent backticks from causing syntax errors
+
+    return this.compileJs('export default Ember.HTMLBars.compile(`' + mungedCode + '`, { moduleName: `' + moduleName + '`});', filePath);
   },
 
   compileCss(code, moduleName) {
@@ -371,11 +376,19 @@ function babelOpts(moduleName) {
  * @return {Array}          Code buffer
  */
 function contentForAppBoot (content, config) {
+  // Add in a shim for ember-resolver => ember/resolver for now since we are still bringing in old bower component
+  // TODO: Once we support included addons, bring in new ember-resolver addon
+  content.push('    define("ember-resolver", ["exports", "ember/resolver"],\n' +
+    '      function(exports, Resolver) {\n' +
+    '        exports["default"] = Resolver;\n' +
+    '      });\n');
+
   // Some modules are not actually transpiled so Babel
   // doesn't recognize them properly...
   var monkeyPatchModules = [
     'ember',
-    'ember/load-initializers'
+    'ember/load-initializers',
+    'ember-resolver'
   ];
 
   if ("ember-data" in config.dependencies) {
