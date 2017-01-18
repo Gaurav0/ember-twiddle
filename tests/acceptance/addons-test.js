@@ -31,7 +31,7 @@ test('Addons work', function(assert) {
     {
       filename: "twiddle.json",
       content: `{
-                  "version": "0.7.0",
+                  "version": "0.11.0",
                   "EmberENV": {
                     "FEATURES": {}
                   },
@@ -41,8 +41,8 @@ test('Addons work', function(assert) {
                   },
                   "dependencies": {
                     "jquery": "https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.js",
-                    "ember": "https://cdnjs.cloudflare.com/ajax/libs/ember.js/2.4.3/ember.debug.js",
-                    "ember-data": "https://cdnjs.cloudflare.com/ajax/libs/ember-data.js/2.4.2/ember-data.js"
+                    "ember": "2.10.2",
+                    "ember-data": "2.10.0"
                   },
                   "addons": {
                     "ember-truth-helpers": "1.2.0"

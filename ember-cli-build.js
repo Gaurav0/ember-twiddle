@@ -113,10 +113,14 @@ module.exports = function(defaults) {
       return "assets/test-loader.js";
     }
   });
+
   testLoaderTree = babelTranspiler(testLoaderTree, {
     modules:'amdStrict',
     moduleIds:true
   });
+
+  var finalQUnitTree = buildAddonTree('ember-qunit');
+  var finalTestHelpersTree = buildAddonTree('ember-test-helpers');
 
   var emberDataShims = funnel('vendor', {
     files: ['ember-data-shims.js']
@@ -156,7 +160,7 @@ module.exports = function(defaults) {
     outputFile: '/assets/twiddle-deps.js'
   });
 
-  return mergeTrees([app.toTree(), twiddleVendorTree, loaderTree, testLoaderTree]);
+  return mergeTrees([app.toTree(), twiddleVendorTree, loaderTree, testLoaderTree, finalQUnitTree, finalTestHelpersTree]);
 };
 
 // This copies code out of ember-cli's blueprints into
@@ -222,4 +226,26 @@ function getEmberCLIBlueprints() {
   fileMap['model'] = fs.readFileSync('blueprints/model.js').toString();
 
   return 'export default ' + JSON.stringify(fileMap);
+}
+
+function buildAddonTree(addonName) {
+  var funnel = require('broccoli-funnel');
+  var concat = require('broccoli-concat');
+  var babelTranspiler = require('broccoli-babel-transpiler');
+  var path = require('path');
+
+  var baseTree = funnel(path.dirname(require.resolve(addonName)), {
+    include: ['**/*.js']
+  });
+
+  var transpiledTree = babelTranspiler(baseTree, {
+    loose: true,
+    moduleIds: true,
+    modules: 'amdStrict'
+  });
+
+  return concat(transpiledTree, {
+    inputFiles: ['**/*.js'],
+    outputFile: '/assets/' + addonName + '.js'
+  });
 }

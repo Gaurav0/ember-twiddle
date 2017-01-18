@@ -7,7 +7,7 @@ import Ember from 'ember';
 import moment from 'moment';
 import _template from "lodash/string/template";
 
-const { computed, inject, RSVP, $ } = Ember;
+const { computed, inject, RSVP, $, testing } = Ember;
 const twiddleAppName = 'twiddle';
 const oldTwiddleAppNames = ['demo-app', 'app'];
 const hbsPlugin = new HbsPlugin(Babel);
@@ -269,7 +269,7 @@ export default Ember.Service.extend({
     }
 
     // avoids security error
-    appJS += "window.history.pushState = function() {}; window.history.replaceState = function() {}; window.sessionStorage = undefined;";
+    let firstJS = "window.history.pushState = function() {};\nwindow.history.replaceState = function() {};\nwindow.sessionStorage = undefined;";
 
     // Hide toolbar since it is not working
     appCSS += `\n#qunit-testrunner-toolbar, #qunit-tests a[href] { display: none; }\n`;
@@ -280,8 +280,9 @@ export default Ember.Service.extend({
 
     let appScriptTag = `<script type="text/javascript">${appJS}</script>`;
     let appStyleTag = `<style type="text/css">${appCSS}</style>`;
+    let firstScriptTag = `<script type="text/javascript">${firstJS}</script>`;
 
-    index = index.replace('{{content-for \'head\'}}', `${depCssLinkTags}\n${appStyleTag}`);
+    index = index.replace('{{content-for \'head\'}}', `${firstScriptTag}\n${depCssLinkTags}\n${appStyleTag}`);
 
     let contentForBody = `${depScriptTags}\n${appScriptTag}\n${testStuff}\n`;
 
@@ -306,6 +307,7 @@ export default Ember.Service.extend({
     let testStuff = '';
 
     let EmberENV = twiddleJSON.EmberENV || {};
+    const isTestingEnabled = testingEnabled(twiddleJSON);
     depScriptTags += `<script type="text/javascript">EmberENV = ${JSON.stringify(EmberENV)};</script>`;
     depScriptTags += `<script type="text/javascript" src="${config.assetsHost}assets/loader.js?${config.APP.version}"></script>`;
 
@@ -324,7 +326,7 @@ export default Ember.Service.extend({
 
     depScriptTags += `<script type="text/javascript" src="${config.assetsHost}assets/twiddle-deps.js?${config.APP.version}"></script>`;
 
-    if (testingEnabled(twiddleJSON)) {
+    if (isTestingEnabled) {
       const testJSFiles = ['assets/test-loader.js', 'testem.js'];
 
       testJSFiles.forEach(jsFile => {
@@ -345,6 +347,13 @@ export default Ember.Service.extend({
 
       let moreCode = "requirejs.entries['ember-cli/test-loader'] = requirejs.entries['ember-cli-test-loader/test-support/index'] || requirejs.entries['assets/test-loader'] || requirejs.entries['ember-cli/test-loader'];";
       testStuff += `<script type="text/javascript">${moreCode}require("${twiddleAppName}/tests/test-helper");</script>`;
+    }
+
+    if (testing || isTestingEnabled) {
+      const moreTestJSFiles = ['assets/ember-test-helpers.js', 'assets/ember-qunit.js'];
+      moreTestJSFiles.forEach(jsFile => {
+        depScriptTags += `<script type="text/javascript" src="${config.assetsHost}${jsFile}?${config.APP.version}"></script>`;
+      });
     }
 
     return { depScriptTags, depCssLinkTags, testStuff };
