@@ -2,7 +2,7 @@
   "name": "ember-twiddle",
   "version": "0.12.2",
   "dependencies": {
-    "jquery": "1.11.3",
+    "jquery": "^1.11.3",
     "codemirror": "~5.19.0",
     "bootstrap-sass": "~3.3.5",
     "dom-ruler": "~0.2.4",

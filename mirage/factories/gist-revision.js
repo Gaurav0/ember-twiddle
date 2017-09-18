@@ -53,7 +53,7 @@ export default GistFactory.extend({
       "raw_url": "https://gist.githubusercontent.com/Gaurav0/a9d365962ab98c2e12cd/raw/87a00ec9acd16432438a70288db99b87371a9aeb/twiddle.json",
       "size": 511,
       "truncated": false,
-      "content": "{\n  \"version\": \"0.6.0\",\n  \"EmberENV\": {\n    \"FEATURES\": {}\n  },\n  \"options\": {\n    \"enable-testing\": false\n  },\n  \"dependencies\": {\n    \"jquery\": \"https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.js\",\n    \"ember\": \"https://cdnjs.cloudflare.com/ajax/libs/ember.js/2.3.1/ember.debug.js\",\n    \"ember-data\": \"https://cdnjs.cloudflare.com/ajax/libs/ember-data.js/2.3.3/ember-data.js\",\n    \"ember-template-compiler\": \"https://cdnjs.cloudflare.com/ajax/libs/ember.js/2.2.0/ember-template-compiler.js\"\n  }\n}\n"
+      "content": "{\n  \"version\": \"0.6.0\",\n  \"EmberENV\": {\n    \"FEATURES\": {}\n  },\n  \"options\": {\n    \"enable-testing\": false\n  },\n  \"dependencies\": {\n    \"jquery\": \"https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.js\",\n    \"ember\": \"https://cdnjs.cloudflare.com/ajax/libs/ember.js/2.3.1/ember.debug.js\",\n    \"ember-data\": \"https://cdnjs.cloudflare.com/ajax/libs/ember-data.js/2.3.3/ember-data.js\",\n    \"ember-template-compiler\": \"https://cdnjs.cloudflare.com/ajax/libs/ember.js/2.2.0/ember-template-compiler.js\"\n  }\n}\n"
     }
   },
   "public": true,
