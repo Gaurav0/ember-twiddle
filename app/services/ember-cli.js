@@ -271,14 +271,14 @@ export default Ember.Service.extend({
 
     let index = blueprints['index.html'];
 
-    let { depScriptTags, depCssLinkTags, testStuff } = this.buildDependencies(twiddleJSON);
+    let { depScriptTags, depCssLinkTags, testStuff, inspectorStuff } = this.buildDependencies(twiddleJSON);
 
     let appScriptTag = `<script type="text/javascript">${appJS}</script>`;
     let appStyleTag = `<style type="text/css">${appCSS}</style>`;
 
     index = index.replace('{{content-for \'head\'}}', `${depCssLinkTags}\n${appStyleTag}`);
 
-    let contentForBody = `${depScriptTags}\n${appScriptTag}\n${testStuff}\n`;
+    let contentForBody = `${depScriptTags}\n${appScriptTag}\n${testStuff}\n${inspectorStuff}\n`;
 
     if (!testingEnabled(twiddleJSON) || legacyTesting(twiddleJSON)) {
       contentForBody += '<div id="root"></div>';
@@ -299,6 +299,7 @@ export default Ember.Service.extend({
     let depCssLinkTags = '';
     let depScriptTags = '';
     let testStuff = '';
+    let inspectorStuff = '';
 
     let EmberENV = twiddleJSON.EmberENV || {};
     const isTestingEnabled = testingEnabled(twiddleJSON);
@@ -394,7 +395,10 @@ export default Ember.Service.extend({
       </script>`;
     }
 
-    return { depScriptTags, depCssLinkTags, testStuff };
+    inspectorStuff += `<script type="text/javascript" src="https://s3.amazonaws.com/ember.js/ember-inspector/ember_debug.js"></script>\n`;
+    inspectorStuff += `<script type="text/javascript" src="https://s3.amazonaws.com/ember.js/ember-inspector/in-page-script.js"></script>\n`;
+
+    return { depScriptTags, depCssLinkTags, testStuff, inspectorStuff };
   },
 
   checkRequiredFiles(out, gist) {
